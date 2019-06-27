@@ -11,3 +11,23 @@ variable "location" {
 	type = "string"
 	default = "westeurope"
 }
+
+variable "domain" {
+	type = "string"
+	default = "StasVaronis.local"
+}
+
+variable "netbios" {
+	type = "string"
+	default = "StasVaronis"
+}
+
+variable "admin_username" {
+	type = "string"
+	default = "sovaradmin"
+}
+
+variable "admin_password" {
+	type = "string"
+	default = "QWE987qwe!@#"
+}
