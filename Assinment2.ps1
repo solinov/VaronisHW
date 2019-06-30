@@ -1,6 +1,6 @@
 ﻿#AzureAD connection
 #Import-Module AzureAd
-Connect-AzureAD
+#Connect-AzureAD
 
 # User creation
 $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
@@ -11,9 +11,9 @@ For ($i=1; $i -le 20; $i++) {
     }
 
 # Log init
-$Log = $null
+#$Log = $null
 
-New-AzureADGroup -DisplayName "Varonis Assignment2 Group" -MailNickName "VaronisAssignment2Group" -SecurityEnabled $true -MailEnabled $true
+New-AzureADGroup -DisplayName "Varonis Assignment2 Group" -MailNickName "VaronisAssignment2Group" -SecurityEnabled $true -MailEnabled $false
 $GroupId = (Get-AzureADGroup -SearchString "VaronisAssignment2Group").ObjectId
 
 foreach ($User in Get-AzureADUser -SearchString "Test User"){
