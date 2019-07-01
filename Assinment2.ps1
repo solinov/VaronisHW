@@ -1,6 +1,7 @@
-﻿#AzureAD connection
-Import-Module AzureAd
-Connect-AzureAD
+﻿#Import-Module AzureAd
+#Import-Module -Name Az
+#Connect-AzureAD
+#Login-AzAccount
 
 # User creation
 $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
@@ -11,11 +12,13 @@ For ($i=1; $i -le 20; $i++) {
     }
 
 # Log init
-#$Log = $null
+$Log = @()
 
+# Group creation
 New-AzureADGroup -DisplayName "Varonis Assignment2 Group" -MailNickName "VaronisAssignment2Group" -SecurityEnabled $true -MailEnabled $false
 $GroupId = (Get-AzureADGroup -SearchString "VaronisAssignment2Group").ObjectId
 
+# Users creation with customized log
 foreach ($User in Get-AzureADUser -SearchString "Test User"){
     $UserId = $User.ObjectId
     try {
@@ -40,3 +43,16 @@ foreach ($User in Get-AzureADUser -SearchString "Test User"){
 
     $Log += $LogEntry
     }
+
+# Customized log export
+$Log | Export-Csv -Path "C:\Assinment2Log.csv" -NoTypeInformation
+
+
+# Blob creation & log upload
+$location = "westeurope"
+$AzResourceGroup = "Assignment2RG"
+New-AzResourceGroup -Name $AzResourceGroup -Location $location
+$StorageAccount = New-AzStorageAccount -ResourceGroupName $AzResourceGroup -Name "sovarassignment2storage" -SkuName Standard_LRS -Location $location
+$context = $StorageAccount.Context
+$containerName = "sovarassignment2blob"
+New-AzStorageContainer -Name $containerName -Context $context -Permission blob
