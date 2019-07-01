@@ -1,6 +1,6 @@
 ﻿#AzureAD connection
-#Import-Module AzureAd
-#Connect-AzureAD
+Import-Module AzureAd
+Connect-AzureAD
 
 # User creation
 $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
