@@ -1,7 +1,7 @@
-﻿#Import-Module AzureAd
-#Import-Module -Name Az
-#Connect-AzureAD
-#Login-AzAccount
+﻿Import-Module AzureAd
+Import-Module -Name Az
+Connect-AzureAD
+Login-AzAccount
 
 # User creation
 $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
@@ -25,9 +25,9 @@ foreach ($User in Get-AzureADUser -SearchString "Test User"){
         Add-AzureADGroupMember -ObjectId $GroupId -RefObjectId $UserId
     }
     catch {
-        $AddUserError = $_.Exception.Message
+        $AddGroupMember = $_.Exception.Message
     }
-    if ($AddUserError -eq $null){
+    if ($AddGroupMember -eq $null){
         $Result = "Success"
     }
     else {$Result = "Failure"}
@@ -45,7 +45,7 @@ foreach ($User in Get-AzureADUser -SearchString "Test User"){
     }
 
 # Customized log export
-$Log | Export-Csv -Path "C:\Assinment2Log.csv" -NoTypeInformation
+$Log | Export-Csv -Path "D:\VaronisHW\Assignment2Log.csv" -NoTypeInformation
 
 
 # Blob creation & log upload

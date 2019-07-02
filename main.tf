@@ -61,27 +61,63 @@ module "server" {
 	OS_admin_password			= "${var.OS_admin_password}"
 }
 
-locals {
-	folder_path			= "C:\\TempFolder"
-	new_folder			= "New-Item -Path '${local.folder_path}' -ItemType Directory"
-	file_path			= "C:\\TempFolder\tempfile.txt"
-	new_file			= "New-Item -Path '${local.file_path}' -ItemType File"
-	#powershell_command  = "${local.new_folder}; ${local.new_file}"
-	powershell_command  = "calc.exe"
+module "install_ad" {
+  source               = ".\\modules\\run_command"
+  resource_group_name  = "${azurerm_resource_group.SOVar_RG.name}"
+  virtual_machine_name = "${module.dc.virtual_machine_name}"
+  os_type              = "windows"
+
+  script = <<EOF
+Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
+$domainpass = "${var.domain_admin_password}"
+$securepass = $domainpass | ConvertTo-SecureString -AsPlainText -Force
+Install-ADDSForest -DomainName “${var.domain_name}” -SafeModeAdministratorPassword $securepass -Confirm:$false
+EOF
 }
 
-resource "azurerm_virtual_machine_extension" "run_command" {
-	name                       = "${module.dc.virtual_machine_name}_run_command"
-	location                   = "${var.location}"
-	resource_group_name        = "${azurerm_resource_group.SOVar_RG.name}"
-	virtual_machine_name       = "${module.dc.virtual_machine_name}"
-	publisher            = "Microsoft.Compute"
-	type                 = "CustomScriptExtension"
-	type_handler_version = "1.9"
 
-  settings = <<SETTINGS
-    {
-        "commandToExecute": "powershell.exe -Command \"${local.powershell_command}\""
-    }
-SETTINGS
+## failed attempt
+#resource "azurerm_virtual_machine_extension" "server_join_domain" {
+#  name                 = "${module.server.virtual_machine_name}_join_domain"
+#  location             = "${var.location}"
+#  resource_group_name  = "${azurerm_resource_group.SOVar_RG.name}"
+#  virtual_machine_name = "${module.server.virtual_machine_name}"
+#  publisher            = "Microsoft.Compute"
+#  type                 = "JsonADDomainExtension"
+#  type_handler_version = "1.0"
+#
+#  settings = <<SETTINGS
+#    {
+#        "Name": "${var.domain_name}",
+#        "OUPath": "",
+#        "User": "${var.domain_name}\\${var.domain_admin_username}",
+#        "Restart": "true",
+#        "Options": "3"
+#    }
+#SETTINGS
+#
+#  protected_settings = <<PROTECTED_SETTINGS
+#    {
+#        "Password": "${var.domain_admin_password}"
+#    }
+#PROTECTED_SETTINGS
+#}
+
+module "group_user_creation" {
+  source               = ".\\modules\\run_command"
+  resource_group_name  = "${azurerm_resource_group.SOVar_RG.name}"
+  virtual_machine_name = "${module.dc.virtual_machine_name}"
+  os_type              = "windows"
+
+  script = <<EOF
+New-ADGroup -Name “Varonis Assignment1 Group” -SamAccountName VaronisAssignment1Group  -GroupScope Universal
+New-ADUser -Name "Varonis User" -SamAccountName VaronisUser
+Add-ADGroupMember -Identity VaronisAssignment1Group -Members VaronisUser
+Add-ADGroupMember -Identity Administrators -Members VaronisAssignment1Group
+EOF
 }
+
+
+
+
+

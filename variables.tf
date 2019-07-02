@@ -60,3 +60,17 @@ variable "OS_admin_password" {
 	type 	= "string"
 	default = "QWE987qwe!@#"
 }
+
+# Domain variables
+variable "domain_name" {
+	type 	= "string"
+	default = "SOVar.local"
+}
+variable "domain_admin_username" {
+	type 	= "string"
+	default = "SOVarAdmin"
+}
+variable "domain_admin_password" {
+	type 	= "string"
+	default = "QWE987qwe!@#"
+}
