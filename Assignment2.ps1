@@ -1,33 +1,42 @@
-﻿Import-Module AzureAd
-Import-Module -Name Az
-Connect-AzureAD
-Login-AzAccount
+﻿#Import-Module AzureAd
+#Connect-AzureAD
+#Import-Module az
+#Connect-AzAccount
 
 # User creation
 $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
 $PasswordProfile.Password = "QWE987qwe!@#"
 
-For ($i=1; $i -le 20; $i++) {
-    New-AzureADUser -AccountEnabled $true -DisplayName "Test User $($i)" -UserPrincipalName "TestUser$($i)@mssolinovoutlook.onmicrosoft.com" -MailNickName "TestUser$($i)" -PasswordProfile $PasswordProfile
+For ($i=1; $i -le 20; $i++){
+    New-AzureADUser -AccountEnabled $true -DisplayName "Test User $($i)" -UserPrincipalName "TestUser$($i)@mssolinovoutlook.onmicrosoft.com" -MailNickName "TestUser$($i)" -PasswordProfile $PasswordProfile -InformationAction SilentlyContinue
     }
 
 # Log init
 $Log = @()
 
 # Group creation
-New-AzureADGroup -DisplayName "Varonis Assignment2 Group" -MailNickName "VaronisAssignment2Group" -SecurityEnabled $true -MailEnabled $false
-$GroupId = (Get-AzureADGroup -SearchString "VaronisAssignment2Group").ObjectId
+$GroupExists = $false
+while ($GroupExists -eq $false){
+    if ((Get-AzureADGroup -SearchString "Varonis Assignment2 Group") -ne $null){
+        $GroupExists = $true
+        }
+        else {
+            New-AzureADGroup -DisplayName "Varonis Assignment2 Group" -MailNickName "VaronisAssignment2Group" -SecurityEnabled $true -MailEnabled $false
+            $GroupId = (Get-AzureADGroup -SearchString "VaronisAssignment2Group").ObjectId
+        }
+    }
 
 # Users creation with customized log
-foreach ($User in Get-AzureADUser -SearchString "Test User"){
+$TestUsers = Get-AzureADUser -SearchString "Test User"
+foreach ($User in $TestUsers){
     $UserId = $User.ObjectId
     try {
         Add-AzureADGroupMember -ObjectId $GroupId -RefObjectId $UserId
-    }
-    catch {
-        $AddGroupMember = $_.Exception.Message
-    }
-    if ($AddGroupMember -eq $null){
+        }
+        catch {
+            $AddGroupMemberError = $_.Exception.Message
+        }
+    if ($AddGroupMemberError -eq $null){
         $Result = "Success"
     }
     else {$Result = "Failure"}
