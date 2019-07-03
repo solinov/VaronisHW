@@ -1,7 +1,7 @@
-﻿#Import-Module AzureAd
-#Connect-AzureAD
-#Import-Module az
-#Connect-AzAccount
+﻿Import-Module AzureAd
+Connect-AzureAD
+Import-Module az
+Connect-AzAccount
 
 # User creation
 $PasswordProfile = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordProfile
@@ -58,10 +58,15 @@ $Log | Export-Csv -Path "D:\VaronisHW\Assignment2Log.csv" -NoTypeInformation
 
 
 # Blob creation & log upload
+Select-AzContext "default"
 $location = "westeurope"
 $AzResourceGroup = "Assignment2RG"
 New-AzResourceGroup -Name $AzResourceGroup -Location $location
-$StorageAccount = New-AzStorageAccount -ResourceGroupName $AzResourceGroup -Name "sovarassignment2storage" -SkuName Standard_LRS -Location $location
+$StorageAccountName = "sovarassignment2storage"
+$StorageAccount = New-AzStorageAccount -ResourceGroupName $AzResourceGroup -Name $StorageAccountName -SkuName Standard_LRS -Location $location
 $context = $StorageAccount.Context
 $containerName = "sovarassignment2blob"
 New-AzStorageContainer -Name $containerName -Context $context -Permission blob
+
+azcopy login
+azcopy <local file path - C:\folder\filename...> <Azure blob url - https://account.blob.core.windows.net/...>
