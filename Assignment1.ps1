@@ -2,6 +2,15 @@
 
 terraform init
 
+
+asdasdlkas;ld kas
+'d lk
+as'; dla
+'s ;dla
+' s;dl a
+s'd;las
+'d;l
+
 # create requested resources
 terraform apply -target azurerm_resource_group.SOVar_RG --auto-approve
 terraform apply -target module.network --auto-approve
